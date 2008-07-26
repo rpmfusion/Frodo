@@ -1,0 +1,21 @@
+--- Src/SAM.cpp.orig	Sun Jan 14 02:20:30 2001
++++ Src/SAM.cpp	Sun Jan 14 02:55:01 2001
+@@ -13,6 +13,7 @@
+ #include "VIC.h"
+ #include "SID.h"
+ #include "CIA.h"
++#include <errno.h>
+ 
+ 
+ // Pointers to chips
+@@ -527,7 +533,9 @@ static void read_line(void)
+ #ifdef __riscos__
+ 	OS_ReadLine(in_ptr = input, INPUT_LENGTH, 0, 255, 0);
+ #else
+-	fgets(in_ptr = input, INPUT_LENGTH, fin);
++	while (fgets(in_ptr = input, INPUT_LENGTH, fin) == NULL && 
++		errno == EINTR)
++		;
+ #endif
+ }
+ 

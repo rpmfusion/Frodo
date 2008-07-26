@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=FrodoSC
+Comment=Single-cycle Commodore 64 emulator
+Exec=FrodoSC
+Icon=Frodo.png
+Terminal=true
+Type=Application
+Categories=Game;Emulator;
+

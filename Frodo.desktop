@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Frodo
+Comment=Line-based Commodore 64 emulator
+Exec=Frodo
+Icon=Frodo.png
+Terminal=true
+Type=Application
+Categories=Game;Emulator;
+
