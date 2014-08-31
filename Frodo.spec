@@ -3,7 +3,7 @@
 Summary: Commodore 64 emulator
 Name: Frodo
 Version: 4.1b
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: Distributable
 Group: Applications/Emulators
 URL: http://frodo.cebix.net/
@@ -127,6 +127,9 @@ fi
 %{_datadir}/Frodo/TkGui.tcl
 
 %changelog
+* Sun Aug 31 2014 Sérgio Basto <sergio@serjux.com> - 4.1b-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Tue Mar 12 2013 Nicolas Chauvet <kwizart@gmail.com> - 4.1b-9
 - https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
