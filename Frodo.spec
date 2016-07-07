@@ -3,7 +3,7 @@
 Summary: Commodore 64 emulator
 Name: Frodo
 Version: 4.1b
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: Distributable
 Group: Applications/Emulators
 URL: http://frodo.cebix.net/
@@ -16,7 +16,7 @@ Patch0: Frodo-4.1b-paths.patch
 Patch1: Frodo-4.1b-opt.patch
 Patch2: Frodo-4.1b-alpha.patch
 Patch3: Frodo-4.1b-SAM.patch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Patch4: Frodo-4.1b-gcc6.patch
 BuildRequires: autoconf
 BuildRequires: SDL-devel >= 1.2.0
 BuildRequires: libXt-devel 
@@ -61,6 +61,7 @@ An enhanced Tcl/Tk preferences GUI for Frodo written by Gerard Decatrel
 %patch1 -p1
 %patch2 -p1
 %patch3 -p0
+%patch4 -p1
 
 %build
 cd Src
@@ -69,7 +70,6 @@ autoconf
 make %{?_smp_mflags} all FRODOHOME="\\\"%{_datadir}/Frodo/\\\""
 
 %install
-rm -rf %{buildroot}
 install -d 755 %{buildroot}%{_bindir}
 install -d 755 %{buildroot}%{_datadir}/Frodo/{64prgs,64imgs}
 install -m 755 Src/Frodo Src/FrodoPC Src/FrodoSC %{buildroot}%{_bindir}
@@ -94,23 +94,19 @@ desktop-file-install --vendor dribble        \
   --dir %{buildroot}%{_datadir}/applications \
   %{SOURCE4}
 
-%clean
-rm -rf %{buildroot}
-
 %post
-touch --no-create %{_datadir}/icons/hicolor
-if [ -x %{_bindir}/gtk-update-icon-cache ]; then
-  %{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
-fi
+/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun
-touch --no-create %{_datadir}/icons/hicolor
-if [ -x %{_bindir}/gtk-update-icon-cache ]; then
-  %{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
+if [ $1 -eq 0 ] ; then
+    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 fi
 
+%posttrans
+/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+
 %files
-%defattr(-,root,root)
 %{_bindir}/Frodo
 %{_bindir}/FrodoPC
 %{_bindir}/FrodoSC
@@ -123,10 +119,12 @@ fi
 %exclude %{_datadir}/Frodo/TkGui.tcl
 
 %files gui
-%defattr(-,root,root)
 %{_datadir}/Frodo/TkGui.tcl
 
 %changelog
+* Thu Jul  7 2016 Hans de Goede <j.w.r.degoede@gmail.com> - 4.1b-11
+- Fix building with gcc6 / fix FTBFS
+
 * Sun Aug 31 2014 Sérgio Basto <sergio@serjux.com> - 4.1b-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
