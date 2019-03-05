@@ -17,6 +17,7 @@ Patch1: Frodo-4.1b-opt.patch
 Patch2: Frodo-4.1b-alpha.patch
 Patch3: Frodo-4.1b-SAM.patch
 Patch4: Frodo-4.1b-gcc6.patch
+BuildRequires: gcc-c++
 BuildRequires: autoconf
 BuildRequires: SDL-devel >= 1.2.0
 BuildRequires: libXt-devel 
