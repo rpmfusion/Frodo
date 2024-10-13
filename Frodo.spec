@@ -1,128 +1,72 @@
-%define pkgversion %(echo %version|sed s/\\\\\./\\_/)
-
 Summary: Commodore 64 emulator
 Name: Frodo
-Version: 4.1b
-Release: 27%{?dist}
-License: Distributable
-Group: Applications/Emulators
+Version: 4.3
+Release: 1%{?dist}
+License: GPL-2.0-or-later
 URL: http://frodo.cebix.net/
-Source0: http://frodo.cebix.net/downloads/%{name}V%{pkgversion}.Src.tar.gz
-Source1: Frodo.png
-Source2: Frodo.desktop
-Source3: FrodoPC.desktop
-Source4: FrodoSC.desktop
-Patch0: Frodo-4.1b-paths.patch
-Patch1: Frodo-4.1b-opt.patch
-Patch2: Frodo-4.1b-alpha.patch
-Patch3: Frodo-4.1b-SAM.patch
-Patch4: Frodo-4.1b-gcc6.patch
+Source0: https://github.com/cebix/frodo4/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
+# Fix running under wayland
+# https://github.com/cebix/frodo4/issues/2
+Patch0: %{name}-4.3-wayland.patch
 BuildRequires: gcc-c++
+BuildRequires: make
 BuildRequires: autoconf
-BuildRequires: SDL-devel >= 1.2.0
-BuildRequires: libXt-devel 
+BuildRequires: autoconf-archive
+BuildRequires: automake
+BuildRequires: libtool
+BuildRequires: SDL2-devel
+BuildRequires: gtk3-devel
 BuildRequires: desktop-file-utils
 Requires: hicolor-icon-theme
 
-%package gui
-Summary: Preferences editor for Frodo
-Group: Applications/Emulators
-Requires: %{name}
-Requires: tk
+Obsoletes: %{name}-gui <= 4.1b
 
 %description
-Frodo V4.1 is a free, portable C64 emulator for BeOS, Unix, MacOS,
-AmigaOS, RiscOS and WinNT/95 systems.
+Frodo is a free, portable Commodore 64 emulator that runs on a variety
+of platforms, with a focus on the exact reproduction of special graphical
+effects possible on the C64.
 
-This emulator focuses on the exact reproduction of special graphical
-effects possible on the C64, and has therefore relatively high system
-requirements. It should only be run on systems with at least a
-PowerPC/Pentium/68060. Frodo is capable of running most games and
-demos correctly, even those with FLI, FLD, DYCP, open borders,
-multiplexed sprites, timing dependent decoders, fast loaders etc. 6510
-emulation: All undocumented opcodes, 100 percent correct decimal mode,
-instruction/cycle exact emulation. VIC emulation: Line-/cycle-based
-emulation, all display modes, sprites with collisions/priorities, DMA
-cycles, open borders, all $d011/$d016 effects. SID emulation:
-Real-time digital emulation (16 bit, 44.1kHz), including filters (only
-under BeOS, Linux, HP-UX, MacOS and AmigaOS). 1541 emulation: Drive
-simulation in directories, .d64/x64 or .t64/LYNX files, or
-processor-level 1541 emulation that works with about 95 percent of all
-fast loaders and even some copy protection schemes. Other peripherals:
-Keyboard and joystick (real joysticks (only under BeOS, Linux and
-AmigaOS) or keyboard emulation). The full source code in C++ is
-available. Frodo is freeware.
+Frodo comes in two flavors: The regular "Frodo" which uses a cycle-exact
+emulation, and the simplified "Frodo Lite" which is less compatible but runs
+better on slower machines.
 
-%description gui
-An enhanced Tcl/Tk preferences GUI for Frodo written by Gerard Decatrel
 
 %prep
-%setup -q
-%patch -P0 -p1
-%patch -P1 -p1
-%patch -P2 -p1
-%patch -P3 -p0
-%patch -P4 -p1
+%autosetup -n frodo4-%{version} -p1
+
 
 %build
-cd Src
-autoconf
+autoreconf -fvi
 %configure
-make %{?_smp_mflags} all FRODOHOME="\\\"%{_datadir}/Frodo/\\\""
+%make_build
+
 
 %install
-install -d 755 %{buildroot}%{_bindir}
-install -d 755 %{buildroot}%{_datadir}/Frodo/{64prgs,64imgs}
-install -m 755 Src/Frodo Src/FrodoPC Src/FrodoSC %{buildroot}%{_bindir}
-install -m 755 TkGui.tcl %{buildroot}%{_datadir}/Frodo
-install -m 644 "Frodo Logo" "1541 ROM" "Basic ROM" "Char ROM" "Kernal ROM" \
-  %{buildroot}%{_datadir}/Frodo
-install -m 644 64prgs/* %{buildroot}%{_datadir}/Frodo/64prgs
+%make_install
 
-#install icon
-mkdir -p %{buildroot}%{_datadir}/icons/hicolor/64x64/apps
-install -m 644 %{SOURCE1} %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/
+# Validate desktop files
+desktop-file-validate \
+   %{buildroot}%{_datadir}/applications/%{name}.desktop
+desktop-file-validate \
+   %{buildroot}%{_datadir}/applications/%{name}Lite.desktop
 
-#install desktop files
-mkdir -p %{buildroot}%{_datadir}/applications
-desktop-file-install --vendor dribble        \
-  --dir %{buildroot}%{_datadir}/applications \
-  %{SOURCE2}
-desktop-file-install --vendor dribble        \
-  --dir %{buildroot}%{_datadir}/applications \
-  %{SOURCE3}
-desktop-file-install --vendor dribble        \
-  --dir %{buildroot}%{_datadir}/applications \
-  %{SOURCE4}
-
-%post
-/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
-
-%postun
-if [ $1 -eq 0 ] ; then
-    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
-    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-fi
-
-%posttrans
-/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %files
 %{_bindir}/Frodo
-%{_bindir}/FrodoPC
-%{_bindir}/FrodoSC
+%{_bindir}/FrodoLite
 %{_datadir}/Frodo
-%{_datadir}/applications/dribble-%{name}.desktop
-%{_datadir}/applications/dribble-%{name}PC.desktop
-%{_datadir}/applications/dribble-%{name}SC.desktop
-%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
-%doc CHANGES Docs/*
-%exclude %{_datadir}/Frodo/TkGui.tcl
+%{_datadir}/applications/%{name}.desktop
+%{_datadir}/applications/%{name}Lite.desktop
+%{_datadir}/icons/hicolor/128x128/apps/%{name}.png
+%doc %{_docdir}/%{name}
+%exclude %{_docdir}/%{name}/COPYING
+%license COPYING
 
-%files gui
-%{_datadir}/Frodo/TkGui.tcl
 
 %changelog
+* Sun Oct 13 2024 Andrea Musuruane <musuruan@gmail.com> - 4.3-1
+- Updated to new upstream release
+
 * Fri Aug 02 2024 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 4.1b-27
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
 

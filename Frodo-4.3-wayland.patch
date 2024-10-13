@@ -1,0 +1,84 @@
+From e4bda36777d67bda823911a566a2bea2e40c11dc Mon Sep 17 00:00:00 2001
+From: Christian Bauer <cb@cebix.net>
+Date: Sun, 13 Oct 2024 13:00:17 +0200
+Subject: [PATCH] Only run GTK idle function while prefs editor is open
+
+---
+ src/Prefs_gtk.h | 19 +++++++++++++++++++
+ src/main.cpp    | 12 ------------
+ 2 files changed, 19 insertions(+), 12 deletions(-)
+
+diff --git a/src/Prefs_gtk.h b/src/Prefs_gtk.h
+index c4620b3..ee3df34 100644
+--- a/src/Prefs_gtk.h
++++ b/src/Prefs_gtk.h
+@@ -190,6 +190,17 @@ static const char * shortcuts_win_ui =
+ 	"</interface>";
+ 
+ 
++// Mainloop idler to keep SDL events going
++static guint idle_source_id = 0;
++
++static gboolean pump_sdl_events(gpointer user_data)
++{
++	SDL_Event event;
++	SDL_WaitEventTimeout(&event, 5);
++	return true;
++}
++
++
+ /*
+  *  Show preferences editor (synchronously)
+  *  prefs_path is the preferences file name
+@@ -295,6 +306,9 @@ bool Prefs::ShowEditor(bool startup, fs::path prefs_path, fs::path snapshot_path
+ 		gtk_widget_set_sensitive(GTK_WIDGET(gtk_builder_get_object(builder, "save_snapshot_menu")), true);
+ 		gtk_widget_set_sensitive(GTK_WIDGET(gtk_builder_get_object(builder, "sam_menu")), true);
+ 
++		// Keep SDL event loop running while preferences editor is open
++		idle_source_id = g_idle_add(pump_sdl_events, nullptr);
++
+ 		SAM_GetState(TheC64);
+ 	}
+ 
+@@ -305,6 +319,11 @@ bool Prefs::ShowEditor(bool startup, fs::path prefs_path, fs::path snapshot_path
+ 	gtk_window_present(prefs_win);
+ 	gtk_main();
+ 
++	if (idle_source_id > 0) {
++		g_source_remove(idle_source_id);
++		idle_source_id = 0;
++	}
++
+ 	// Save preferences if "Start"/"Continue" clicked
+ 	if (result) {
+ 		get_values();
+diff --git a/src/main.cpp b/src/main.cpp
+index fae7d73..9d18faf 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -59,15 +59,6 @@ void Frodo::ProcessArgs(int argc, char ** argv)
+  *  Arguments processed, run emulation
+  */
+ 
+-#ifdef HAVE_GTK
+-static gboolean pump_sdl_events(gpointer user_data)
+-{
+-	SDL_Event event;
+-	SDL_WaitEventTimeout(&event, 5);
+-	return true;
+-}
+-#endif
+-
+ void Frodo::ReadyToRun()
+ {
+ 	// Load preferences
+@@ -89,9 +80,6 @@ void Frodo::ReadyToRun()
+ 	// Show preferences editor
+ 	if (!ThePrefs.ShowEditor(true, prefs_path, snapshot_path))
+ 		return;  // "Quit" clicked
+-
+-	// Keep SDL event loop running while preferences editor is open the next time
+-	g_idle_add(pump_sdl_events, nullptr);
+ #endif
+ 
+ 	// Create and start C64
