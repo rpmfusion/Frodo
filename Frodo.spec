@@ -1,13 +1,10 @@
 Summary: Commodore 64 emulator
 Name: Frodo
-Version: 4.3
+Version: 4.4
 Release: 1%{?dist}
 License: GPL-2.0-or-later
 URL: http://frodo.cebix.net/
 Source0: https://github.com/cebix/frodo4/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
-# Fix running under wayland
-# https://github.com/cebix/frodo4/issues/2
-Patch0: %{name}-4.3-wayland.patch
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: autoconf
@@ -32,7 +29,7 @@ better on slower machines.
 
 
 %prep
-%autosetup -n frodo4-%{version} -p1
+%autosetup -n frodo4-%{version}
 
 
 %build
@@ -64,6 +61,9 @@ desktop-file-validate \
 
 
 %changelog
+* Mon Nov 04 2024 Andrea Musuruane <musuruan@gmail.com> - 4.4-1
+- Updated to new upstream release
+
 * Sun Oct 13 2024 Andrea Musuruane <musuruan@gmail.com> - 4.3-1
 - Updated to new upstream release
 
