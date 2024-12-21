@@ -1,6 +1,6 @@
 Summary: Commodore 64 emulator
 Name: Frodo
-Version: 4.4
+Version: 4.5
 Release: 1%{?dist}
 License: GPL-2.0-or-later
 URL: http://frodo.cebix.net/
@@ -55,12 +55,16 @@ desktop-file-validate \
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/applications/%{name}Lite.desktop
 %{_datadir}/icons/hicolor/128x128/apps/%{name}.png
+%{_datadir}/mime/packages/vnd.cbm-%{name}.xml
 %doc %{_docdir}/%{name}
 %exclude %{_docdir}/%{name}/COPYING
 %license COPYING
 
 
 %changelog
+* Mon Dec 16 2024 Andrea Musuruane <musuruan@gmail.com> - 4.5-1
+- Updated to new upstream release
+
 * Mon Nov 04 2024 Andrea Musuruane <musuruan@gmail.com> - 4.4-1
 - Updated to new upstream release
 
