@@ -1,7 +1,7 @@
 Summary: Commodore 64 emulator
 Name: Frodo
 Version: 4.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL-2.0-or-later
 URL: http://frodo.cebix.net/
 Source0: https://github.com/cebix/frodo4/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
@@ -62,6 +62,9 @@ desktop-file-validate \
 
 
 %changelog
+* Wed Jan 29 2025 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 4.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_42_Mass_Rebuild
+
 * Mon Dec 16 2024 Andrea Musuruane <musuruan@gmail.com> - 4.5-1
 - Updated to new upstream release
 
